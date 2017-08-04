@@ -1,8 +1,10 @@
 package muhaitian.androidcollectionproject;
 
 import android.os.Bundle;
+
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import muhaitian.androidcollectionproject.mvc.LoginModel;
 import muhaitian.androidcollectionproject.mvc.LoginView;
@@ -14,19 +16,23 @@ import muhaitian.androidcollectionproject.mvc.Student;
 
 public class MvcActivity extends AppCompatActivity implements LoginView.LoginViewListener {
 
+    private static final String TAG = "MvcActivity";
+
     private LoginView loginView;
     private LoginModel loginModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.mvc_mainview);
         initAllInfo();
     }
 
     private void initAllInfo() {
         loginView = new LoginView(this, this);
-        loginModel = new LoginModel(loginView);
+        loginModel = new LoginModel();
+        loginModel.setLoginStatusChange(loginView);
+        loginView.setLogModel(loginModel);
     }
 
     @Override
@@ -61,6 +67,17 @@ public class MvcActivity extends AppCompatActivity implements LoginView.LoginVie
 
     @Override
     public void loginAccount(Student student) {
-        loginModel.login(student);
+        Log.d(TAG, "loginAccount: ");
+        loginModel.login(student, new LoginModel.LoginCallBack() {
+            @Override
+            public void loginfailure() {
+                loginView.showLoginResults("failure");
+            }
+
+            @Override
+            public void loginsuccess() {
+                loginView.showLoginResults("successful");
+            }
+        });
     }
 }
