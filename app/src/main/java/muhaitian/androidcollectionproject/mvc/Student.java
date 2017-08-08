@@ -1,10 +1,12 @@
 package muhaitian.androidcollectionproject.mvc;
 
+import java.io.Serializable;
+
 /**
  * Created by muhaitian on 2017/8/4.
  */
 
-public class Student {
+public class Student implements Serializable{
     public static final String ROOT_NAME = "Muhaitian";
     public static final String PASSWARD = "kangkang";
 
