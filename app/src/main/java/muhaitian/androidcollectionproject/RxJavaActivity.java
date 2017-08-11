@@ -2,6 +2,7 @@ package muhaitian.androidcollectionproject;
 
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,8 +25,12 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.subjects.PublishSubject;
 import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.rxjava.RxJavaTestDemo;
+import muhaitian.androidcollectionproject.rxjava.RxJavaUsageScenarios;
 
+import static muhaitian.androidcollectionproject.R.id.info;
 import static muhaitian.androidcollectionproject.R.id.text;
 
 
@@ -36,19 +41,45 @@ import static muhaitian.androidcollectionproject.R.id.text;
 public class RxJavaActivity extends AppCompatActivity {
 
     private final String TAG = "RxJavaActivity";
+    private RxJavaUsageScenarios rxJavaUsageScenarios;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.rajava_main_view);
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll().penaltyLog().build());
+        }
+        PublishSubject<Integer> mDownloadProgress = PublishSubject.create();
+
 
         rxJava_01();
         rxJava_02();
         rxJava_03();
         rxJavaMap();
         rxJavaFlatmap();
+        rxJavaUsageScenarios = new RxJavaUsageScenarios();
+        rxJavaUsageScenarios.useFilter();
+
+//        RxJavaTestDemo.Samplingc();
+//        RxJavaTestDemo.Timeout();
+//        RxJavaTestDemo.flatMap();
+//        RxJavaTestDemo.mapDemo();
+//        RxJavaTestDemo.ConcatMap();
+//        RxJavaTestDemo.Scan();
+//        RxJavaTestDemo.GroupBy();
+//        RxJavaTestDemo.Buffer();
+//        RxJavaTestDemo.Window();
+//        RxJavaTestDemo.cast();
+//        RxJavaTestDemo.Merge();
+//        RxJavaTestDemo.useZip();
+//        RxJavaTestDemo.useJoin();
+        RxJavaTestDemo.StartWith();
     }
+
 
     private void rxJava_01() {
 
@@ -84,6 +115,7 @@ public class RxJavaActivity extends AppCompatActivity {
         });
 
         myObservable.subscribe(mySubscriber);
+
     }
 
     private void rxJava_02() {
@@ -170,8 +202,9 @@ public class RxJavaActivity extends AppCompatActivity {
             }
         });
     }
-    //调用中使用对象，会有问题，目前不知道是什么问题。
-    private void rxJavaFlatmap(){
+
+    //调用中使用对象
+    private void rxJavaFlatmap() {
         Log.d(TAG, "rxJavaFlatmap: ");
         Student user1 = new Student();
         user1.setName("Jose");
@@ -182,21 +215,28 @@ public class RxJavaActivity extends AppCompatActivity {
         list.add(user2);
 
 
-        qury(list).flatMap(new Function<List<Student>, ObservableSource<?>>() {
+        qury(list).flatMap(new Function<List<Student>, ObservableSource<Student>>() {
             @Override
-            public ObservableSource<?> apply(@NonNull List<Student> strings) throws Exception {
-                return Observable.fromArray(strings);
+            public ObservableSource<Student> apply(@NonNull final List<Student> strings) throws Exception {
+                return Observable.create(new ObservableOnSubscribe<Student>() {
+                    @Override
+                    public void subscribe(@NonNull ObservableEmitter<Student> e) throws Exception {
+                        for (int i = 0; i < strings.size(); i++)
+                            e.onNext(strings.get(i));
+                        e.onComplete();
+                    }
+                });
             }
-        }).subscribe(new Observer<Object>() {
+        }).subscribe(new Observer<Student>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
                 Log.d(TAG, "rxJavaFlatmap onSubscribe: ");
             }
 
             @Override
-            public void onNext(@NonNull Object o) {
-                Log.d(TAG, "onNext: "+o);
-                Log.d(TAG, "rxJavaFlatmap onNext: "+((Student)o).getName());
+            public void onNext(@NonNull Student o) {
+                Log.d(TAG, "onNext: " + o);
+                Log.d(TAG, "rxJavaFlatmap onNext: " + o.getName());
             }
 
             @Override
@@ -213,7 +253,7 @@ public class RxJavaActivity extends AppCompatActivity {
         Log.d(TAG, "rxJavaFlatmap: over");
     }
 
-    private Observable<List<Student>> qury(final List<Student> list){
+    private Observable<List<Student>> qury(final List<Student> list) {
         return Observable.create(new ObservableOnSubscribe<List<Student>>() {
             @Override
             public void subscribe(@NonNull ObservableEmitter<List<Student>> e) throws Exception {

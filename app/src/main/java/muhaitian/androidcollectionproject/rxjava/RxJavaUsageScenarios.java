@@ -25,9 +25,10 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function3;
+import io.reactivex.internal.util.AppendOnlyLinkedArrayList;
 import io.reactivex.schedulers.Schedulers;
 import muhaitian.androidcollectionproject.R;
-import rx.functions.Action0;
+
 
 /**
  * Created by muhaitian on 2017/8/8.
@@ -349,6 +350,8 @@ public class RxJavaUsageScenarios {
 
     /**
      * 第九种场景
+     *
+     * 轮询请求
      */
     public void useSchedulePeriodically() {
         Observable.create(new ObservableOnSubscribe<Object>() {
@@ -443,6 +446,44 @@ public class RxJavaUsageScenarios {
 //        CheckBox checkBox = (CheckBox) findViewById(R.id.cb_test);
 //        RxCompoundButton.checkedChanges(checkBox)
 //                .subscribe(checked.asAction());
+    }
+
+    /**
+     *
+     * 过滤信息
+     *
+     */
+
+    public void useFilter(){
+        Observable.just("asss","bbsss","sfdsd").filter(new AppendOnlyLinkedArrayList.NonThrowingPredicate<String>() {
+            @Override
+            public boolean test(String s) {
+                if(s.contains("sss")){
+                    return false;
+                }
+                return true;
+            }
+        }).subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull String s) {
+                Log.d(TAG, "onNext: "+s);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
     }
 
 }
