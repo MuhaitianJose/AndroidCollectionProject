@@ -77,7 +77,15 @@ public class RxJavaActivity extends AppCompatActivity {
 //        RxJavaTestDemo.Merge();
 //        RxJavaTestDemo.useZip();
 //        RxJavaTestDemo.useJoin();
-        RxJavaTestDemo.StartWith();
+//        RxJavaTestDemo.StartWith();
+//        RxJavaTestDemo.allObserver();
+//        RxJavaTestDemo.ambObserver();
+//        RxJavaTestDemo.ContainsAndIsEmpty();
+//        RxJavaTestDemo.DefaultIfEmpty();
+//        RxJavaTestDemo.SequenceEqual();
+//        RxJavaTestDemo.SkipUntilAndSkipWhile();
+//        RxJavaTestDemo.TakeUntilAndTakeWhile();
+        RxJavaTestDemo.ReduceAndCollect();
     }
 
 

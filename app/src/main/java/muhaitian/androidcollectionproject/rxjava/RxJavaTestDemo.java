@@ -9,16 +9,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
+import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.BiConsumer;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
+import io.reactivex.functions.Predicate;
+import io.reactivex.internal.util.AppendOnlyLinkedArrayList;
 import io.reactivex.observables.GroupedObservable;
 import muhaitian.androidcollectionproject.mvc.Student;
 
@@ -258,7 +263,7 @@ public class RxJavaTestDemo {
         Observable.just("wangkang", "lili", "wangjuan").switchMap(new Function<String, ObservableSource<String>>() {
             @Override
             public ObservableSource<String> apply(@NonNull String s) throws Exception {
-                return null;
+                return Observable.just("ObservableSource " + s);
             }
         }).subscribe(new Observer<String>() {
             @Override
@@ -636,7 +641,13 @@ public class RxJavaTestDemo {
      */
     public static void useZip() {
         Observable observable = Observable.just("jkjk", "ghkk", "ghh");
-        Observable<Long> observable1 = Observable.interval(1, TimeUnit.SECONDS);
+        Observable<Long> observable1 = Observable.create(new ObservableOnSubscribe<Long>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<Long> e) throws Exception {
+                e.onNext(55555L);
+                e.onComplete();
+            }
+        }).interval(1, TimeUnit.SECONDS);
         Observable.zip(observable, observable1, new BiFunction<String, Long, String>() {
             @Override
             public String apply(@NonNull String s, @NonNull Long aLong) throws Exception {
@@ -730,35 +741,31 @@ public class RxJavaTestDemo {
     public static void combineLatest() {
 
     }
+
     /**
-     *
      * and then wen
-     *
+     * <p>
      * 没有相关的类，不知道需要引入什么样的库，暂时空缺。
-     *
      */
-    public static void AndThenWhen(){
-        Observable<String> observable = Observable.just("12","23");
-        Observable<Long> longObservable = Observable.interval(1,TimeUnit.SECONDS);
+    public static void AndThenWhen() {
+        Observable<String> observable = Observable.just("12", "23");
+        Observable<Long> longObservable = Observable.interval(1, TimeUnit.SECONDS);
 //
 //        Pattern<String,Long> pattern = JoinObservable
     }
 
     /**
-     *
      * switch
-     *
      */
-    public static void Switch(){
+    public static void Switch() {
 
     }
 
     /**
      * StartWith
-     *
      */
-    public static void StartWith(){
-        Observable observable = Observable.just("mk","mo","md");
+    public static void StartWith() {
+        Observable observable = Observable.just("mk", "mo", "md");
 
         observable.startWith(new Observable() {
             @Override
@@ -776,7 +783,7 @@ public class RxJavaTestDemo {
 
             @Override
             public void onNext(@NonNull String o) {
-                Log.d(TAG, "onNext: "+o);
+                Log.d(TAG, "onNext: " + o);
             }
 
             @Override
@@ -787,6 +794,413 @@ public class RxJavaTestDemo {
             @Override
             public void onComplete() {
 
+            }
+        });
+    }
+
+    /**
+     * Do操作符就是给Observable的生命周期的各个阶段加上一系列的回调监听，当Observable执行到这个阶段的时候，这些回调就会被触发。
+     * 在Rxjava实现了很多的doxxx操作符。DoOnEach可以给Observable加上这样的样一个回调：Observable每发射一个数据的时候就会触发这个回调，
+     * 不仅包括onNext还包括onError和onCompleted。
+     * <p>
+     * doon
+     */
+    public void useDoon() {
+        Observable.just("as", "bm", "jk").doOnEach(new Consumer<Notification<String>>() {
+            @Override
+            public void accept(Notification<String> stringNotification) throws Exception {
+                Log.d(TAG, "accept: stringNotification==" + stringNotification);
+            }
+        }).doOnNext(new Consumer<String>() {
+            @Override
+            public void accept(String s) throws Exception {
+
+            }
+        }).doOnError(new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+
+            }
+        }).doOnSubscribe(new Consumer<Disposable>() {
+            @Override
+            public void accept(Disposable disposable) throws Exception {
+
+            }
+        }).subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull String s) {
+
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**
+     * Meterialize操作符将OnNext/OnError/OnComplete都转化为一个Notification对象并按照原来的顺序发射出来
+     * <p>
+     * Meterialize
+     */
+    public void Meterialize() {
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onNext("123");
+                e.onNext("456");
+                e.onNext("789");
+                e.onNext("next");
+                e.onNext("over");
+                e.onComplete();
+            }
+        }).materialize().subscribe(new Observer<Notification<String>>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                Log.d(TAG, "onSubscribe: ");
+            }
+
+            @Override
+            public void onNext(@NonNull Notification<String> stringNotification) {
+                Log.d(TAG, "onNext: stringNotification=" + stringNotification);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.d(TAG, "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+        });
+    }
+
+    /**
+     * allObserver
+     * <p>
+     * all的用法不太清楚怎么处理
+     */
+    public static void allObserver() {
+        Observable.just(1, 2, 3, 4, 5, 6, 7).all(new Predicate<Integer>() {
+            @Override
+            public boolean test(@NonNull Integer integer) throws Exception {
+
+                if (integer >= 1) {
+                    return true;
+                }
+                return false;
+            }
+        }).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                Log.d(TAG, "accept: aBoolean==" + aBoolean);
+            }
+        });
+    }
+
+    /**
+     * Amb操作符可以将至多9个Observable结合起来，让他们竞争。哪个Observable首先发射了数据
+     * （包括onError和onComplete)就会继续发射这个Observable的数据，其他的Observable所发射的数据都会别丢弃。
+     */
+    public static void ambObserver() {
+        Observable<Integer> observable = Observable.just(1, 2, 3).delay(3000, TimeUnit.MILLISECONDS);
+        Observable<Integer> observable1 = Observable.just(4, 5, 6).delay(2000, TimeUnit.MILLISECONDS);
+        Observable<Integer> observable2 = Observable.just(7, 8, 9).delay(1000, TimeUnit.MILLISECONDS);
+        Observable.ambArray(observable, observable1, observable2).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                Log.d(TAG, "onSubscribe: ");
+            }
+
+            @Override
+            public void onNext(@NonNull Integer integer) {
+                Log.d(TAG, "onNext: integer=" + integer);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.d(TAG, "onError: ");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+        });
+    }
+
+    /**
+     * Contains、IsEmpty
+     */
+    public static void ContainsAndIsEmpty() {
+        Log.d(TAG, "ContainsAndIsEmpty: contains:");
+        Observable.just(12, 23, 34, 45, 56).contains(23).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                Log.d(TAG, "accept: " + aBoolean);
+            }
+        });
+        Log.d(TAG, "ContainsAndIsEmpty: IsEmpty:");
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onComplete();
+            }
+        }).isEmpty().subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                Log.d(TAG, "accept: " + aBoolean);
+            }
+        });
+
+    }
+
+    /**
+     * DefaultIfEmpty操作符会判断源Observable是否发射数据，如果源Observable发射了数据则正常发射这些数据，如果没有则发射一个默认的数据
+     * <p>
+     * DefaultIfEmpty
+     */
+    public static void DefaultIfEmpty() {
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onComplete();
+            }
+        }).defaultIfEmpty("456").subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                Log.d(TAG, "onSubscribe: ");
+            }
+
+            @Override
+            public void onNext(@NonNull String s) {
+                Log.d(TAG, "onNext: " + s);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.d(TAG, "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+        });
+
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<String> e) throws Exception {
+                e.onNext("wangkang");
+                e.onComplete();
+            }
+        }).defaultIfEmpty("456").subscribe(new Observer<String>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                Log.d(TAG, "onSubscribe: ");
+            }
+
+            @Override
+            public void onNext(@NonNull String s) {
+                Log.d(TAG, "onNext: " + s);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.d(TAG, "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+        });
+    }
+
+    /**
+     * SequenceEqual
+     * <p>
+     * SequenceEqual操作符用来判断两个Observable发射的数据序列是否相同（发射的数据相同，数据的序列相同，结束的状态相同），如果相同返回true，否则返回false
+     */
+    public static void SequenceEqual() {
+        Observable<Integer> observable = Observable.just(12, 34, 56);
+        Observable<Integer> observable1 = Observable.just(12, 34, 78);
+        Observable.sequenceEqual(observable, observable1).subscribe(new Consumer<Boolean>() {
+            @Override
+            public void accept(Boolean aBoolean) throws Exception {
+                Log.d(TAG, "accept: aBoolean==" + aBoolean);
+            }
+        });
+    }
+
+    /**
+     * SkipUntil、SkipWhile
+     * 这两个操作符都是根据条件来跳过一些数据，不同之处在于SkipUnitl是根据一个标志Observable来判断的，当这个标志Observable没有发射数据的时候，
+     * 所有源Observable发射的数据都会被跳过；当标志Observable发射了一个数据，则开始正常地发射数据。
+     * <p>
+     * SkipWhile则是根据一个函数来判断是否跳过数据，当函数返回值为true的时候则一直跳过源Observable发射的数据；当函数返回false的时候则开始正常发射数据。
+     */
+    public static void SkipUntilAndSkipWhile() {
+
+        Observable.interval(1, TimeUnit.SECONDS).skipUntil(Observable.timer(3, TimeUnit.SECONDS)).subscribe(new Observer<Long>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                Log.d(TAG, "skipUntil onNext: " + aLong);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        Observable.interval(1, TimeUnit.SECONDS).skipWhile(new Predicate<Long>() {
+            @Override
+            public boolean test(@NonNull Long aLong) throws Exception {
+                return false;
+            }
+        }).subscribe(new Observer<Long>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                Log.d(TAG, "skipWhile onNext: " + aLong);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**
+     * TakeUntil、TakeWhile
+     * <p>
+     * TakeUntil和TakeWhile操作符可以说和SkipUnitl和SkipWhile操作符是完全相反的功能。TakeUntil也是使用一个标志Observable是否发射数据来判断，
+     * 当标志Observable没有发射数据时，正常发射数据，而一旦标志Observable发射过了数据则后面的数据都会被丢弃。
+     */
+
+    public static void TakeUntilAndTakeWhile() {
+        Observable.interval(1, TimeUnit.SECONDS).takeUntil(Observable.timer(3, TimeUnit.SECONDS)).subscribe(new Observer<Long>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                Log.d(TAG, "takeUntil onNext: " + aLong);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        Observable.interval(1, TimeUnit.SECONDS).takeWhile(new Predicate<Long>() {
+            @Override
+            public boolean test(@NonNull Long aLong) throws Exception {
+                return true;
+            }
+        }).subscribe(new Observer<Long>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(@NonNull Long aLong) {
+                Log.d(TAG, "takeWhile onNext: " + aLong);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+    }
+
+    /**
+     * Reduce、Collect
+     * <p>
+     * educe操作符应用一个函数接收Observable发射的数据和函数的计算结果作为下次计算的参数，输出最后的结果。
+     * 跟前面我们了解过的scan操作符很类似，只是scan会输出每次计算的结果，而reduce只会输出最后的结果。
+     * <p>
+     * Collect操作符类似于Reduce，但是其目的不同，collect用来将源Observable发射的数据给收集到一个数据结构里面，需要使用两个参数：
+     * 一个产生收集数据结构的函数。
+     * 一个接收第一个函数产生的数据结构和源Observable发射的数据作为参数的函数。
+     */
+    public static void ReduceAndCollect() {
+        Observable.just(12, 35, 78, 95).reduce(new BiFunction<Integer, Integer, Integer>() {
+            @Override
+            public Integer apply(@NonNull Integer integer, @NonNull Integer integer2) throws Exception {
+                return integer + integer2;
+            }
+        }).subscribe(new Consumer<Integer>() {
+            @Override
+            public void accept(Integer integer) throws Exception {
+                Log.d(TAG, "accept: integer = " + integer);
+            }
+        });
+        Observable.just(12, 34).collect(new Callable<List<Integer>>() {
+            @Override
+            public List<Integer> call() throws Exception {
+                return new ArrayList<>();
+            }
+        }, new BiConsumer<List<Integer>, Integer>() {
+            @Override
+            public void accept(List<Integer> o, Integer integer) throws Exception {
+                Log.d(TAG, "accept: List<Integer>=" + o);
+                Log.d(TAG, "accept: Linteger=" + integer);
+                o.add(integer);
+            }
+        }).subscribe(new BiConsumer<List<Integer>, Throwable>() {
+            @Override
+            public void accept(List<Integer> o, Throwable throwable) throws Exception {
+                Log.d(TAG, "subscribe accept: " + o);
             }
         });
     }
