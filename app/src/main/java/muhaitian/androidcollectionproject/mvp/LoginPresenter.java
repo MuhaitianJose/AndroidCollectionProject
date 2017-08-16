@@ -3,7 +3,7 @@ package muhaitian.androidcollectionproject.mvp;
 
 import android.text.TextUtils;
 
-import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.model.Student;
 
 /**
  * Created by muhaitian on 2017/8/7.

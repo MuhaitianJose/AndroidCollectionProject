@@ -8,9 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +20,11 @@ import io.reactivex.Observer;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.subjects.PublishSubject;
-import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.model.Student;
 import muhaitian.androidcollectionproject.rxjava.RxJavaTestDemo;
 import muhaitian.androidcollectionproject.rxjava.RxJavaUsageScenarios;
-
-import static muhaitian.androidcollectionproject.R.id.info;
-import static muhaitian.androidcollectionproject.R.id.text;
 
 
 /**

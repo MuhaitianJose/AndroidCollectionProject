@@ -2,6 +2,8 @@ package muhaitian.androidcollectionproject.mvc;
 
 import android.util.Log;
 
+import muhaitian.androidcollectionproject.model.Student;
+
 /**
  * Created by muhaitian on 2017/8/4.
  */

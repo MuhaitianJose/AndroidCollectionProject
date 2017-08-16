@@ -35,4 +35,5 @@ dependencies {
     //    compile 'com.jakewharton.rxbinding2:rxbinding-design:2.0.0'
     //    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:1.0.1'
     compile 'com.squareup.okhttp:okhttp:2.7.2'
+    compile 'com.google.code.gson:gson:2.8.1'
 }

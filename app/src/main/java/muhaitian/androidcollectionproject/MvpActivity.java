@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.model.Student;
 import muhaitian.androidcollectionproject.mvp.LoginPresenter;
 import muhaitian.androidcollectionproject.mvp.LoginView;
 

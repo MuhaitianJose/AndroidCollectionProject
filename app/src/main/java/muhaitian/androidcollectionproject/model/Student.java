@@ -1,4 +1,4 @@
-package muhaitian.androidcollectionproject.mvc;
+package muhaitian.androidcollectionproject.model;
 
 import java.io.Serializable;
 

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import muhaitian.androidcollectionproject.R;
+import muhaitian.androidcollectionproject.model.Student;
 
 /**
  * Created by muhaitian on 2017/8/4.

@@ -8,7 +8,7 @@ import android.util.Log;
 
 import muhaitian.androidcollectionproject.mvc.LoginModel;
 import muhaitian.androidcollectionproject.mvc.LoginView;
-import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.model.Student;
 
 /**
  * Created by wangkang001 on 2017/8/4.

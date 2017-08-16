@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 import io.reactivex.Notification;
 import io.reactivex.Observable;
@@ -15,7 +14,6 @@ import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
-import io.reactivex.Single;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.BiConsumer;
@@ -23,9 +21,8 @@ import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
-import io.reactivex.internal.util.AppendOnlyLinkedArrayList;
 import io.reactivex.observables.GroupedObservable;
-import muhaitian.androidcollectionproject.mvc.Student;
+import muhaitian.androidcollectionproject.model.Student;
 
 /**
  * Created by muhaitian on 2017/8/9.
