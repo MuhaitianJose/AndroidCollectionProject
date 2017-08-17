@@ -1,4 +1,4 @@
-package muhaitian.encapsulatedopensourcelibrary;
+package muhaitian.opensourcelibrary;
 
 import org.junit.Test;
 

@@ -8,7 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/EncapsulatedOpensourceLibrary" />
+            <option value="$PROJECT_DIR$/OpensourceLibrary" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
