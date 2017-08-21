@@ -8,6 +8,7 @@ package muhaitian.opensourcelibrary;
 import android.appwidget.AppWidgetHost;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -19,6 +20,8 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 /**
  * 方法注解包含：@GET、@POST、@PUT、@DELETE、@PATCH、@HEAD、@OPTIONS、@HTTP(可以替换前面七个以及其他扩展方法)。
@@ -117,6 +120,35 @@ public class MainSource {
         @FormUrlEncoded
         @POST("v1/login")
         Call<ResponseBody> postLogin(@Path("userName") String username, @Path("Password") String password);
+
+        /**
+         *
+         * FieldMap、Part、PartMap、Path
+         *
+         */
+        @GET("blog/{id}")
+        Call<ResponseBody> getBlog(@Path("id") int id);
+        /**
+         *
+         * Query
+         * 查询参数
+         *
+         */
+        // 链接 http://baseurl/blog/id?sort=ShortStr
+        @GET("blog/{id}")
+        Call<ResponseBody> query(@Path("id") int id, @Query("sort")String sort);
+
+        //传递数组
+        @GET("blog/{id}")
+        Call<ResponseBody> queryArray(@Path("id") int id,@Query("linked[]") String ... linked);
+
+        /**
+         *
+         * QueryMap
+         *
+         */
+        @GET("blog/{id}")
+        Call<ResponseBody> queryMap(@Path("id") int id, @QueryMap Map<String ,String> querymap);
 
     }
 }
