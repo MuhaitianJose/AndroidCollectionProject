@@ -45,5 +45,19 @@ public class SerializableOkHttpCookies implements Serializable {
         long expiresAt = in.readLong();
         String domain = (String) in.readObject();
         String path = (String) in.readObject();
+        boolean secure = in.readBoolean();
+        boolean httpOnly = in.readBoolean();
+        boolean hostOnly = in.readBoolean();
+        boolean persistent = in.readBoolean();
+
+        Cookie.Builder builder = new Cookie.Builder();
+        builder = builder.name(name);
+        builder = builder.value(value);
+        builder = builder.expiresAt(expiresAt);
+        builder = hostOnly ? builder.hostOnlyDomain(domain) : builder.domain(domain);
+        builder = builder.path(path);
+        builder = secure ? builder.httpOnly() : builder;
+        clientCookies = builder.build();
+
     }
 }
