@@ -16,8 +16,13 @@ import retrofit2.Converter;
 public class CookieManger implements CookieJar {
 
     private static final String TAG = "CookieManger";
-    private static Context context;
+    private static Context mcontext;
 //    private static Persis
+
+
+    public CookieManger(Context context){
+        mcontext = context;
+    }
 
     @Override
     public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {

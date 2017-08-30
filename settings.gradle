@@ -1,1 +1,1 @@
-include ':app', ':OpensourceLibrary'
+include ':app', ':OpensourceLibrary', ':Mydemo'

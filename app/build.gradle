@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '26.0.0'
     defaultConfig {
         applicationId "muhaitian.androidcollectionproject"
         minSdkVersion 15
@@ -10,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -17,6 +19,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
+
 }
 
 dependencies {
@@ -24,6 +29,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    //com.google.dagger:dagger-compiler,加这个jar包会出现变异错误（说是包冲突），需要加下面的包才能解决冲突问题。
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:25.3.1'
@@ -32,8 +39,14 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
     compile 'com.jakewharton.rxbinding2:rxbinding-support-v4:2.0.0'
-    //    compile 'com.jakewharton.rxbinding2:rxbinding-design:2.0.0'
-    //    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:1.0.1'
     compile 'com.squareup.okhttp:okhttp:2.7.2'
     compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.jakewharton:butterknife:8.8.1'
+    //如果少了这个依赖会导致点击事件之类的不能用
+    compile 'com.jakewharton:butterknife-compiler:8.8.1'
+    //依赖注入的依赖包
+    compile 'com.google.dagger:dagger:2.11'
+    apt 'com.google.dagger:dagger-compiler:2.11'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
 }

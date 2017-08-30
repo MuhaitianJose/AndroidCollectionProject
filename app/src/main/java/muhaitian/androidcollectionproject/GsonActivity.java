@@ -3,28 +3,32 @@ package muhaitian.androidcollectionproject;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
 
-import java.io.IOException;
-
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import muhaitian.androidcollectionproject.jsontest.GsonTestDemo;
 
 /**
  * Created by muhaitian on 2017/8/15.
  */
 
-public class GsonActivity extends AppCompatActivity{
+public class GsonActivity extends AppCompatActivity {
 
     private static final String TAG = "GsonActivity";
+
     private GsonTestDemo gsonTestDemo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gjso_mainview);
+        ButterKnife.bind(this);
         initData();
     }
 
-    public void initData(){
+    public void initData() {
         gsonTestDemo = new GsonTestDemo();
 //        gsonTestDemo.basicTypes();
 //        gsonTestDemo.objectToString();
@@ -70,4 +74,5 @@ public class GsonActivity extends AppCompatActivity{
     protected void onResume() {
         super.onResume();
     }
+
 }
