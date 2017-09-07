@@ -5,10 +5,13 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.icu.util.Measure;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MotionEventCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -182,11 +185,66 @@ public class SimpleButton extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        mRect.set(mBorderWidth, mBorderWidth, w - mBorderWidth, h - mBorderWidth);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        float radius = mRaddius;
+        if (mTagShape == SHAPE_ARC) {
+            radius = mRect.height() / 2;
+        } else if (mTagShape == SHAPE_RECT) {
+            radius = 0;
+        }
+
+        //绘制背景
+        mPaint.setStyle(Paint.Style.FILL);
+        if (mIsChecked) {
+            mPaint.setColor(mBgColorChecked);
+        } else {
+            mPaint.setColor(mBgColor);
+        }
+        canvas.drawRoundRect(mRect, radius, radius, mPaint);
+        //绘制边框
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeWidth(mBorderWidth);
+        if (mIsChecked) {
+            mPaint.setColor(mBorderColorChecked);
+        } else {
+            mPaint.setColor(mBorderColor);
+        }
+        canvas.drawRoundRect(mRect, radius, radius, mPaint);
+        //绘制文字
+        mPaint.setStyle(Paint.Style.FILL);
+        if (mIsChecked) {
+            mPaint.setColor(mTextColorChecked);
+            int padding = mTagMode == MODE_ICON_CHECK_INVISIBLE ? 0 : mIconSize + mIconPadding;
+            canvas.drawText(mTextShow, mIconGravity == Gravity.RIGHT ?
+                            (getWidth() - mFontWidthChecked - padding) / 2 : (getWidth() - mFontWidthChecked - padding) / 2 + padding,
+                    getHeight() / 2 + mBaseLineDistance, mPaint);
+        } else {
+            mPaint.setColor(mTextColor);
+            int padding = mDecorateIcon == null ? 0 : mIconSize + mIconPadding;
+            canvas.drawText(mTextShow,
+                    mIconGravity == Gravity.RIGHT ? (getWidth() - mFontWidth - padding) / 2
+                            : (getWidth() - mFontWidth - padding) / 2 + padding,
+                    getHeight() / 2 + mBaseLineDistance, mPaint);
+        }
+        //绘制Icon
+        if (mTagMode == MODE_ICON_CHECK_CHANGE && mIsChecked && mDecorateIconChange != null) {
+            mDecorateIconChange.setColorFilter(mPaint.getColor(), PorterDuff.Mode.SRC_IN);
+            mDecorateIconChange.draw(canvas);
+        } else if (mTagMode == MODE_ICON_CHECK_INVISIBLE && mIsChecked) {
+            //Don't need draw
+        } else if (mDecorateIcon != null) {
+            mDecorateIcon.setColorFilter(mPaint.getColor(), PorterDuff.Mode.SRC_IN);
+            mDecorateIcon.draw(canvas);
+        }
+        if (mIsPressed) {
+            mPaint.setColor(mScrimColor);
+            canvas.drawRoundRect(mRect, radius, radius, mPaint);
+        }
     }
 
     @Override
@@ -194,6 +252,26 @@ public class SimpleButton extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int allPadding = adjustText(getMeasuredWidth());
         int fontLen = mIsChecked ? mFontWidthChecked : mFontWidth;
+        int width = (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY) ?
+                MeasureSpec.getSize(widthMeasureSpec) : allPadding + fontLen;
+        int height = (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) ?
+                MeasureSpec.getSize(heightMeasureSpec) : mVerticalPadding * 2 + mFontHeight;
+        setMeasuredDimension(width, height);
+        if (mDecorateIcon != null || mDecorateIconChange != null) {
+            int top = (height - mIconSize) / 2;
+            int left;
+            if (mIconGravity == Gravity.RIGHT) {
+                int padding = (width - mIconSize - fontLen - mIconPadding) / 2;
+                left = width - padding - mIconSize;
+            } else {
+                left = (width - mIconSize - fontLen - mIconPadding) / 2;
+            }
+            if (mTagMode == MODE_ICON_CHECK_CHANGE && mIsChecked && mDecorateIconChange != null) {
+                mDecorateIconChange.setBounds(left, top, mIconSize + left, mIconSize + top);
+            } else if (mDecorateIcon != null) {
+                mDecorateIcon.setBounds(left, top, mIconSize + left, mIconSize + top);
+            }
+        }
     }
 
     private int adjustText(int maxWidth) {
@@ -230,100 +308,179 @@ public class SimpleButton extends View {
             allPadding = mIconPadding + mIconSize + mHorizontalPadding * 2;
         }
 
+        //设置显示的文字
+        if (mIsChecked && !TextUtils.isEmpty(mTextChecked)) {
+            if (mFontWidthChecked + allPadding > maxWidth) {
+                float pointWidth = mPaint.measureText(".");
+                float maxTextWidth = maxWidth - allPadding - pointWidth * 3;
+                mTextShow = clipShowText(mTextChecked, mPaint, maxTextWidth);
+                mFontWidthChecked = (int) mPaint.measureText(mTextShow);
+            } else {
+                mTextShow = mTextChecked;
+            }
+        } else if (mFontWidth + allPadding > maxWidth) {
+            float pointWidth = mPaint.measureText(".");
+            // 计算能显示的字体长度
+            float maxTextWidth = maxWidth - allPadding - pointWidth * 3;
+            mTextShow = clipShowText(mText, mPaint, maxTextWidth);
+            mFontWidth = (int) mPaint.measureText(mTextShow);
+        } else {
+            mTextShow = mText;
+        }
 
         return allPadding;
     }
 
+    private String clipShowText(String oriText, Paint paint, float maxTextWidth) {
+        float tmpWidth = 0;
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < oriText.length(); i++) {
+            char c = oriText.charAt(i);
+            float cWidth = paint.measureText(String.valueOf(c));
+            if (tmpWidth + cWidth > maxTextWidth) {
+                break;
+            }
+            builder.append(c);
+            tmpWidth += cWidth;
+        }
+        builder.append("...");
+        return builder.toString();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+
+        switch (MotionEventCompat.getActionMasked(event)) {
+            case MotionEvent.ACTION_DOWN:
+                mIsPressed = true;
+                invalidate();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (mIsPressed && !isViewUnder(event.getX(), event.getY())) {
+                    mIsPressed = false;
+                    invalidate();
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                if (isViewUnder(event.getX(), event.getY())) {
+                    toggleTagCheckStatus();
+                }
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                if (mIsChecked) {
+                    mIsChecked = false;
+                    invalidate();
+                }
+                break;
+        }
+
         return super.onTouchEvent(event);
     }
 
-    public int getmTagShape() {
+    private void toggleTagCheckStatus() {
+        if (mIsAutoToggleCheck) {
+            setmIsChecked(!mIsChecked);
+        }
+    }
+
+    private boolean isViewUnder(float x, float y) {
+        return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
+    }
+
+    public int getTagShape() {
         return mTagShape;
     }
 
-    public void setmTagShape(int mTagShape) {
+    public void setTagShape(int mTagShape) {
         this.mTagShape = mTagShape;
+        update();
     }
 
-    public int getmTagMode() {
+    public int getTagMode() {
         return mTagMode;
     }
 
-    public void setmTagMode(int mTagMode) {
+    public void setTagMode(int mTagMode) {
         this.mTagMode = mTagMode;
+        update();
     }
 
-    public Paint getmPaint() {
-        return mPaint;
-    }
+//    public Paint getPaint() {
+//        return mPaint;
+//    }
+//
+//    public void setPaint(Paint mPaint) {
+//        this.mPaint = mPaint;
+//    }
 
-    public void setmPaint(Paint mPaint) {
-        this.mPaint = mPaint;
-    }
-
-    public int getmBgColor() {
+    public int getBgColor() {
         return mBgColor;
     }
 
-    public void setmBgColor(int mBgColor) {
+    public void setBgColor(int mBgColor) {
         this.mBgColor = mBgColor;
+        invalidate();
     }
 
-    public int getmBorderColor() {
+    public int getBorderColor() {
         return mBorderColor;
     }
 
-    public void setmBorderColor(int mBorderColor) {
+    public void setBorderColor(int mBorderColor) {
         this.mBorderColor = mBorderColor;
+        invalidate();
     }
 
-    public int getmTextColor() {
+    public int getTextColor() {
         return mTextColor;
     }
 
-    public void setmTextColor(int mTextColor) {
+    public void setTextColor(int mTextColor) {
         this.mTextColor = mTextColor;
+        invalidate();
     }
 
-    public int getmBgColorChecked() {
+    public int getBgColorChecked() {
         return mBgColorChecked;
     }
 
-    public void setmBgColorChecked(int mBgColorChecked) {
+    public void setBgColorChecked(int mBgColorChecked) {
         this.mBgColorChecked = mBgColorChecked;
+        invalidate();
     }
 
     public int getmBorderColorChecked() {
         return mBorderColorChecked;
     }
 
-    public void setmBorderColorChecked(int mBorderColorChecked) {
+    public void setBorderColorChecked(int mBorderColorChecked) {
         this.mBorderColorChecked = mBorderColorChecked;
+        invalidate();
     }
 
-    public int getmTextColorChecked() {
+    public int getTextColorChecked() {
         return mTextColorChecked;
     }
 
-    public void setmTextColorChecked(int mTextColorChecked) {
+    public void setTextColorChecked(int mTextColorChecked) {
         this.mTextColorChecked = mTextColorChecked;
+        invalidate();
     }
 
-    public int getmScrimColor() {
+    public int getScrimColor() {
         return mScrimColor;
     }
 
-    public void setmScrimColor(int mScrimColor) {
+    public void setScrimColor(int mScrimColor) {
         this.mScrimColor = mScrimColor;
+        invalidate();
     }
 
-    public float getmTextSize() {
+    public float getTextSize() {
         return mTextSize;
     }
 
-    public void setmTextSize(float mTextSize) {
+    public void setTextSize(float mTextSize) {
         this.mTextSize = mTextSize;
     }
 
@@ -355,7 +512,7 @@ public class SimpleButton extends View {
         return mBaseLineDistance;
     }
 
-    public void setmBaseLineDistance(float mBaseLineDistance) {
+    public void setmBaseLineDistance(int mBaseLineDistance) {
         this.mBaseLineDistance = mBaseLineDistance;
     }
 
@@ -367,52 +524,57 @@ public class SimpleButton extends View {
         this.mBorderWidth = mBorderWidth;
     }
 
-    public float getmRaddius() {
+    public float getRaddius() {
         return mRaddius;
     }
 
-    public void setmRaddius(float mRaddius) {
+    public void setRaddius(float mRaddius) {
         this.mRaddius = mRaddius;
+        invalidate();
     }
 
-    public String getmText() {
+    public String getText() {
         return mText;
     }
 
-    public void setmText(String mText) {
+    public void setText(String mText) {
         this.mText = mText;
+        update();
     }
 
-    public String getmTextChecked() {
+    public String getTextChecked() {
         return mTextChecked;
     }
 
-    public void setmTextChecked(String mTextChecked) {
+    public void setTextChecked(String mTextChecked) {
         this.mTextChecked = mTextChecked;
+        update();
     }
 
-    public String getmTextShow() {
+    public String getTextShow() {
         return mTextShow;
     }
 
-    public void setmTextShow(String mTextShow) {
+    public void setTextShow(String mTextShow) {
         this.mTextShow = mTextShow;
     }
 
-    public int getmHorizontalPadding() {
+    public int getHorizontalPadding() {
         return mHorizontalPadding;
     }
 
-    public void setmHorizontalPadding(int mHorizontalPadding) {
+    public void setHorizontalPadding(int mHorizontalPadding) {
         this.mHorizontalPadding = mHorizontalPadding;
+        update();
     }
 
-    public int getmVerticalPadding() {
+    public int getVerticalPadding() {
         return mVerticalPadding;
     }
 
-    public void setmVerticalPadding(int mVerticalPadding) {
+    public void setVerticalPadding(int mVerticalPadding) {
         this.mVerticalPadding = mVerticalPadding;
+        update();
     }
 
     public RectF getmRect() {
@@ -423,36 +585,39 @@ public class SimpleButton extends View {
         this.mRect = mRect;
     }
 
-    public Drawable getmDecorateIcon() {
+    public Drawable getDecorateIcon() {
         return mDecorateIcon;
     }
 
-    public void setmDecorateIcon(Drawable mDecorateIcon) {
+    public void setDecorateIcon(Drawable mDecorateIcon) {
         this.mDecorateIcon = mDecorateIcon;
+        update();
     }
 
-    public Drawable getmDecorateIconChange() {
+    public Drawable getDecorateIconChange() {
         return mDecorateIconChange;
     }
 
-    public void setmDecorateIconChange(Drawable mDecorateIconChange) {
+    public void setDecorateIconChange(Drawable mDecorateIconChange) {
         this.mDecorateIconChange = mDecorateIconChange;
+        update();
     }
 
-    public int getmIconGravity() {
+    public int getIconGravity() {
         return mIconGravity;
     }
 
-    public void setmIconGravity(int mIconGravity) {
+    public void setIconGravity(int mIconGravity) {
         this.mIconGravity = mIconGravity;
     }
 
-    public int getmIconPadding() {
+    public int getIconPadding() {
         return mIconPadding;
     }
 
-    public void setmIconPadding(int mIconPadding) {
+    public void setIconPadding(int mIconPadding) {
         this.mIconPadding = mIconPadding;
+        update();
     }
 
     public int getmIconSize() {
@@ -467,8 +632,21 @@ public class SimpleButton extends View {
         return mIsChecked;
     }
 
-    public void setmIsChecked(boolean mIsChecked) {
-        this.mIsChecked = mIsChecked;
+    /**
+     * 设置选中状态
+     *
+     * @param Checked
+     */
+    public void setmIsChecked(boolean Checked) {
+        if (mIsChecked == Checked) {
+            return;
+        }
+        mIsChecked = Checked;
+        requestLayout();
+        invalidate();
+        if (mCheckListener != null) {
+            mCheckListener.onCheckedChanged(mIsChecked);
+        }
     }
 
     public boolean ismIsAutoToggleCheck() {
@@ -486,4 +664,22 @@ public class SimpleButton extends View {
     public void setmIsPressed(boolean mIsPressed) {
         this.mIsPressed = mIsPressed;
     }
+
+
+    private OnCheckedChangeListener mCheckListener;
+
+
+    public void setCheckListener(OnCheckedChangeListener onCheckedChangeListener) {
+        mCheckListener = onCheckedChangeListener;
+    }
+
+    public interface OnCheckedChangeListener {
+        void onCheckedChanged(boolean isChecked);
+    }
+
+    private void update() {
+        requestLayout();
+        invalidate();
+    }
+
 }

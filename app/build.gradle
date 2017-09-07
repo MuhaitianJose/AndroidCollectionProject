@@ -41,6 +41,7 @@ dependencies {
     compile 'com.jakewharton.rxbinding2:rxbinding-support-v4:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.7.2'
     compile 'com.google.code.gson:gson:2.8.1'
+
     compile 'com.jakewharton:butterknife:8.8.1'
     //如果少了这个依赖会导致点击事件之类的不能用
     compile 'com.jakewharton:butterknife-compiler:8.8.1'
