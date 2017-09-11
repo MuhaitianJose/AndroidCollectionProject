@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="tab_bar_margin_top">56dp</dimen>
+    <dimen name="nav_header_height">180dp</dimen>
+    <dimen name="CircleImageView_width">80dp</dimen>
+    <dimen name="CircleImageView_height">80dp</dimen>
 </resources>

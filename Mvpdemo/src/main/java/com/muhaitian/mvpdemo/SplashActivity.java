@@ -1,13 +1,14 @@
 package com.muhaitian.mvpdemo;
 
-import android.os.Bundle;
+import android.content.Intent;
+import android.util.Log;
 
 import com.muhaitian.mvpdemo.base.BaseActivity;
 import com.muhaitian.mvpdemo.utils.RxHelper;
 import com.muhaitian.mvpdemo.widget.SimpleButton;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
+
 import butterknife.OnClick;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -18,8 +19,13 @@ import io.reactivex.disposables.Disposable;
  */
 
 public class SplashActivity extends BaseActivity {
+
+    private static final String TAG = "SplashActivity";
+
     @BindView(R.id.SB_skip)
     SimpleButton SBSkip;
+
+    private boolean mIsSkip = false;
 
     @Override
     protected int attachLayoutRes() {
@@ -46,33 +52,36 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onNext(@NonNull Integer integer) {
-
+                Log.d(TAG, "onNext: " + integer);
+                SBSkip.setText("跳过" + integer);
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
-
+                doSkip();
             }
 
             @Override
             public void onComplete() {
-
+                doSkip();
             }
         });
     }
 
     private void doSkip() {
-
+        Log.d(TAG, "doSkip: ");
+        if (!mIsSkip) {
+            mIsSkip = true;
+            finish();
+            startActivity(new Intent(SplashActivity.this, HomeActivity.class));
+            overridePendingTransition(R.anim.hold, R.anim.zoom_in_exit);
+        }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
-    }
 
     @OnClick(R.id.SB_skip)
     public void onViewClicked() {
+        Log.d(TAG, "onViewClicked: ");
+        doSkip();
     }
 }

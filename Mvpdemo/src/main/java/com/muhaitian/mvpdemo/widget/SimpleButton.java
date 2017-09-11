@@ -113,6 +113,7 @@ public class SimpleButton extends View {
 
     public SimpleButton(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        initData(context,attrs);
     }
 
     private void initData(Context context, AttributeSet attrs) {
