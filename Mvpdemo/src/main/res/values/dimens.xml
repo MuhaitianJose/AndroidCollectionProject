@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="tab_bar_margin_top">56dp</dimen>
+    <!--NavView-->
     <dimen name="nav_header_height">180dp</dimen>
+    <!--Circle image-->
     <dimen name="CircleImageView_width">80dp</dimen>
     <dimen name="CircleImageView_height">80dp</dimen>
+    <!--tablelayout-->
+    <dimen name="tab_bar_margin_top">56dp</dimen>
+    <dimen name="tab_layout_height">38dp</dimen>
+
+    <!--toolsbar-->
+    <dimen name="toolbar_margin_top">25dp</dimen>
 </resources>

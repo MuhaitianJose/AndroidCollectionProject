@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.muhaitian.mvpdemo.R;
@@ -188,10 +189,11 @@ public abstract class BaseActivity extends RxAppCompatActivity implements IBaseV
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
+//        if (item.getItemId() == android.R.id.home) {
+//            Log.d("onOptionsItemSelected", "onOptionsItemSelected: ");
+//            finish();
+//            return true;
+//        }
         return super.onOptionsItemSelected(item);
     }
 }

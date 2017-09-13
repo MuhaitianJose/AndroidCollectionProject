@@ -13,7 +13,8 @@ import com.muhaitian.mvpdemo.R;
 import com.muhaitian.mvpdemo.utils.SwipeRefreshHelper;
 import com.muhaitian.mvpdemo.widget.EmptyLayout;
 import com.trello.rxlifecycle2.LifecycleTransformer;
-import com.trello.rxlifecycle2.components.RxFragment;
+import com.trello.rxlifecycle2.components.support.RxFragment;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

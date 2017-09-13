@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#5677fC</color>
     <color name="colorhh">#789652</color>
+    <color name="item_pressed">#33626262</color>
 </resources>
