@@ -9,9 +9,9 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/Mvpdemo" />
+            <option value="$PROJECT_DIR$/Mvplibrary" />
             <option value="$PROJECT_DIR$/OpensourceLibrary" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/mvplibrary" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

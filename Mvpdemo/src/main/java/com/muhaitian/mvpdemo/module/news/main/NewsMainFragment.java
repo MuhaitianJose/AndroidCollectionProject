@@ -42,8 +42,8 @@ public class NewsMainFragment extends BaseFragment implements INewsMainView {
     protected void initViews() {
         initToolBar(toolBar,true,"新闻");
         setHasOptionsMenu(true);
-//        viewPager.setAdapter(mPagerAdapter);
-//        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(mPagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override

@@ -1,3 +1,2 @@
-
-include ':app', ':OpensourceLibrary', ':Mvpdemo', ':mvplibrary'
+include ':app', ':OpensourceLibrary', ':Mvpdemo', ':Mvplibrary'
 
